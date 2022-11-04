@@ -21,7 +21,7 @@ inputs:
   timeout:
     description: 'Timeout in minutes for the wait. A value of 0 will wait forever!'
     required: false
-    default: 20
+    default: 120
 outputs:
   status:
     description: 'The result of the build.'
