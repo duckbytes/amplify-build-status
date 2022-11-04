@@ -1,0 +1,36 @@
+# action.yml
+name: 'Get Amplify Status'
+description: 'Get the status of an Amplify build, or wait for it to complete.'
+inputs:
+  app-id:
+    description: 'The ID of the Amplify app'
+    required: true
+    default: ''
+  branch-name:
+    description: 'The connected branch to the Amplify console.'
+    required: true
+    default: ''
+  commit-id:
+    description: 'The commit ID that the build was triggered from'
+    required: true
+    default: ''
+  wait:
+    description: 'The action will prevent continuing until the next step until the build fails or succeeds. Boolean.'
+    required: false
+    default: false
+  timeout:
+    description: 'Timeout in minutes for the wait. A value of 0 will wait forever!'
+    required: false
+    default: 20
+outputs:
+  status:
+    description: 'The result of the build.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.app-id }}
+    - ${{ inputs.branch-name }}
+    - ${{ inputs.commit-id }}
+    - ${{ inputs.wait }}
+    - ${{ inputs.timeout }}
