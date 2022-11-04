@@ -76,8 +76,7 @@ if [[ -z $STATUS ]]; then
         echo "Waiting for job to start..."
     done
     elif [[ $STATUS ]]; then
-        echo "Build in progress..."
-        echo "Status: $STATUS"
+        echo "Build in progress... Status: $STATUS"
     fi
 
 seconds=$(( $TIMEOUT * 60 ))
