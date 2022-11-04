@@ -39,10 +39,12 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-if [[ $STATUS -eq "SUCCEED" ]]; then
+echo $STATUS
+
+if [[ $STATUS == "SUCCEED" ]]; then
     echo "Build Succeeded!"
     exit 0
-elif [[ $STATUS -eq "FAILED" ]]; then
+elif [[ $STATUS == "FAILED" ]]; then
     echo "Build Failed!"
     exit 1
 fi
@@ -55,14 +57,14 @@ count=0
 if [[ "$WAIT" == "false" ]]; then
     exit 1
 elif [[ "$WAIT" == "true" ]]; then
-    while [[ $STATUS -ne "SUCCEED" ]]; do
+    while [[ $STATUS != "SUCCEED" ]]; do
         sleep 30
         STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
         if [[ $? -ne 0 ]]; then
             echo "Failed to get status of the job."
             exit 1
         fi
-        if [[ $STATUS -eq "FAILED" ]]; then
+        if [[ $STATUS == "FAILED" ]]; then
             echo "Build Failed!"
             exit 1
         fi
@@ -71,6 +73,7 @@ elif [[ "$WAIT" == "true" ]]; then
             echo "Timed out."
             exit 1
         fi
+        echo "Build in progress..."
     done
     echo "Build Succeeded!"
 fi
