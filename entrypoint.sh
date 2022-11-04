@@ -20,7 +20,9 @@ fi
 get_status () {
     local result;
     result=$(aws amplify list-jobs --app-id "$1" --branch-name "$2" | jq -r ".jobSummaries[] | select(.commitId == \"$3\") | .status")
+    status=$?
     echo "$result"
+    return status
 }
 
 check_status () {
@@ -37,6 +39,12 @@ check_status () {
 get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID"
 
 STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
+
+if [[ $? -ne 0 ]]; then
+    echo "Failed to get status of the job."
+    exit 1
+fi
+
 check_status "$STATUS"
 
 result=$?
@@ -61,6 +69,10 @@ elif [[ "$WAIT" == "true" ]]; then
     while [[ $result -ne 0 ]]; do
         sleep 30
         STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to get status of the job."
+            exit 1
+        fi
         check_status "$STATUS"
         result=$?
         if [[ result -eq q ]]; then
