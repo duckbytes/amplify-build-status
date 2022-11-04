@@ -17,7 +17,7 @@ if [ -z "$AWS_REGION" ] ; then
   exit 1
 fi
 
-export AWS_REGION="$AWS_REGION"
+export AWS_DEFAULT_REGION="$AWS_REGION"
 export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
 export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
 
@@ -31,7 +31,7 @@ get_status () {
     result=$(aws amplify list-jobs --app-id "$1" --branch-name "$2" | jq -r ".jobSummaries[] | select(.commitId == \"$3\") | .status")
     status=$?
     echo "$result"
-    return status
+    return $status
 }
 
 check_status () {
