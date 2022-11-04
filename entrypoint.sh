@@ -12,6 +12,15 @@ if [ -z "$AWS_ACCESS_KEY_ID" ] && [ -z "$AWS_SECRET_ACCESS_KEY" ] ; then
   exit 1
 fi
 
+if [ -z "$AWS_REGION" ] ; then
+  echo "You must provide AWS_REGION environment variable to connect to AWS."
+  exit 1
+fi
+
+export AWS_REGION="$AWS_REGION"
+export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+
 if [[ $TIMEOUT -lt 0 ]]; then
     echo "Timeout must not be a negative number. Use 0 for unlimited timeout."
     exit 1
