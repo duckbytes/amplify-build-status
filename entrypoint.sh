@@ -80,7 +80,7 @@ if [[ -z $STATUS ]]; then
         echo "Status: $STATUS"
     fi
 
-seconds=(( $TIMEOUT * 60 ))
+seconds=$(( $TIMEOUT * 60 ))
 count=0
 
 if [[ "$WAIT" == "false" ]]; then
