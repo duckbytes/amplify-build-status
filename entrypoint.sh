@@ -8,16 +8,35 @@ TIMEOUT=$5
 NO_FAIL=$6
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
-if [[ -z "$AWS_ACCESS_KEY_ID" ]] && [ -z "$AWS_SECRET_ACCESS_KEY" ] ; then
-  echo "You must provide the action with both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables to connect to AWS."
+if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+  echo "You must provide the AWS_ACCESS_KEY_ID environment variable."
+  exit 1
+fi
+
+if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+  echo "You must provide the AWS_SECRET_ACCESS_KEY environment variable."
   exit 1
 fi
 
 if [[ -z "$AWS_DEFAULT_REGION" ]] ; then
-  echo "You must provide AWS_DEFAULT_REGION environment variable to connect to AWS."
+  echo "You must provide the AWS_REGION environment variable."
   exit 1
 fi
 
+if [[ -z "$APP_ID" ]] ; then
+  echo "You must provide the app-id."
+  exit 1
+fi
+
+if [[ -z "$BRANCH_NAME" ]] ; then
+  echo "You must provide the branch-name."
+  exit 1
+fi
+
+if [[ -z "$COMMIT_ID" ]] ; then
+  echo "You must provide the commit-id."
+  exit 1
+fi
 
 if [[ $TIMEOUT -lt 0 ]]; then
     echo "Timeout must not be a negative number. Use 0 for unlimited timeout."
