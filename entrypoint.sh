@@ -5,6 +5,7 @@ BRANCH_NAME=$2
 COMMIT_ID=$3
 WAIT=$4
 TIMEOUT=$5
+NO_FAIL=$6
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
 if [[ -z "$AWS_ACCESS_KEY_ID" ]] && [ -z "$AWS_SECRET_ACCESS_KEY" ] ; then
@@ -31,6 +32,14 @@ get_status () {
     return $exit_status
 }
 
+no_fail_check () {
+    if [[ $NO_FAIL == "true" ]]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
 STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
 
 if [[ $? -ne 0 ]]; then
@@ -40,51 +49,64 @@ fi
 
 if [[ $STATUS == "SUCCEED" ]]; then
     echo "Build Succeeded!"
+    echo "status=$STATUS" >> $GITHUB_OUTPUT
     exit 0
 elif [[ $STATUS == "FAILED" ]]; then
     echo "Build Failed!"
-    exit 1
+    echo "status=$STATUS" >> $GITHUB_OUTPUT
+    no_fail_check
 fi
+
+count=0
 
 if [[ -z $STATUS ]]; then
-    echo "No job found for commit $COMMIT_ID yet but continuing in case Amplify is just being slow."
-fi
-
-if [[ $STATUS ]]; then
-    echo "Build in progress..."
-    echo "Status: $STATUS"
-fi
-
-seconds=$(( $TIMEOUT * 60 ))
-count=30
-
-if [[ "$WAIT" == "false" ]]; then
-    exit 1
-elif [[ "$WAIT" == "true" ]]; then
-    while [[ $STATUS != "SUCCEED" ]]; do
+    echo "No job found for commit $COMMIT_ID. Waiting for job to start..."
+    while [[ -z $STATUS ]]; do
+        if [[ $count -ge 1800 ]]; then
+            echo "Timed out waiting for job to start."
+            exit 1
+        fi
         sleep 30
         STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
         if [[ $? -ne 0 ]]; then
             echo "Failed to get status of the job."
             exit 1
         fi
-        if [[ -z $STATUS ]]; then
-            echo "Still no job found for commit $COMMIT_ID."
-            if [[ $count -ge 1800 ]]; then
-                echo "No Amplify job after 30 minutes, giving up."
-                exit 1
-            fi
-        elif [[ $STATUS == "FAILED" ]]; then
-            echo "Build Failed!"
+        count=$((count+30))
+        echo "Waiting for job to start..."
+    done
+    elif [[ $STATUS ]]; then
+        echo "Build in progress..."
+        echo "Status: $STATUS"
+    fi
+
+seconds=( $TIMEOUT * 60 )
+count=0
+
+if [[ "$WAIT" == "false" ]]; then
+    echo "status=$STATUS" >> $GITHUB_OUTPUT
+    exit 0
+elif [[ "$WAIT" == "true" ]]; then
+    while [[ $STATUS != "SUCCEED" ]]; do
+        if [[ $TIMEOUT -ne 0 ]] && [[ $count -ge $seconds ]]; then
+            echo "Timed out."
             exit 1
+        fi
+        sleep 30
+        STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to get status of the job."
+            exit 1
+        fi
+        if [[ $STATUS == "FAILED" ]]; then
+            echo "Build Failed!"
+            echo "status=$STATUS" >> $GITHUB_OUTPUT
+            no_fail_check
         else
             echo "Build in progress... Status: $STATUS"
         fi
         count=$(( $count + 30 ))
-        if [[ $count -ge $seconds ]] && [[ $TIMEOUT -ne 0 ]]; then
-            echo "Timed out."
-            exit 1
-        fi
     done
     echo "Build Succeeded!"
+    echo "status=$STATUS" >> $GITHUB_OUTPUT
 fi
