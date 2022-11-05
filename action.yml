@@ -39,3 +39,6 @@ runs:
     - ${{ inputs.wait }}
     - ${{ inputs.timeout }}
     - ${{ inputs.no-fail }}
+branding:
+  icon: 'check-circle'
+  color: 'orange'
