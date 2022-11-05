@@ -36,7 +36,7 @@ Click on *Edit backend* and copy the appId value.
 Other inputs are:
 
 - `wait` # Whether or not to wait until the remote build is completed or failed before continuing the workflow (default: false).
-- `timeout` # How long to wait in minutes for the remote build to complete or fail, if `wait` is set (default: 120).
+- `timeout` # How long to wait in minutes for the remote build to complete or fail, if `wait` is set (default: 120. 0 is no timeout).
 - `no-fail` # If the remote build fails the script will still use a successful exit status and not interrupt the workflow (default: false).
 
 ### Outputs
