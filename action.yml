@@ -29,6 +29,8 @@ inputs:
 outputs:
   status:
     description: 'The result of the build.'
+  backend_environment:
+    description: 'The name of the backend environment'
 runs:
   using: 'docker'
   image: 'Dockerfile'

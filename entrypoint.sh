@@ -45,7 +45,7 @@ fi
 
 get_status () {
     local status;
-    status=$(aws amplify list-jobs --app-id "$1" --branch-name "$2" | jq -r ".jobSummaries[] | select(.commitId == \"$3\") | .status")
+    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status")
     exit_status=$?
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
@@ -104,8 +104,23 @@ if [[ -z $STATUS ]]; then
 seconds=$(( $TIMEOUT * 60 ))
 count=0
 
+get_backend_env_name () {
+    local env_name;
+    local env_arn;
+    # get backendEnvironmentArn from get branch first
+    env_arn=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
+    # search the list of backend environments for the environment name
+    env_name=$(aws amplify list-backend-environments --app-id "$APP_ID" | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
+    exit_status=$?
+    env_name=$(echo $env_name | tr '\n' ' ')
+    echo "$env_name"
+    return $exit_status
+}
+
 if [[ "$WAIT" == "false" ]]; then
+    env_name=$(get_backend_env_name)
     echo "status=$STATUS" >> $GITHUB_OUTPUT
+    echo "environment_name=$env_name" >> $GITHUB_OUTPUT
     exit 0
 elif [[ "$WAIT" == "true" ]]; then
     while [[ $STATUS != "SUCCEED" ]]; do
@@ -121,6 +136,8 @@ elif [[ "$WAIT" == "true" ]]; then
         fi
         if [[ $STATUS == "FAILED" ]]; then
             echo "Build Failed!"
+            env_name=$(get_backend_env_name)
+            echo "environment_name=$env_name" >> $GITHUB_OUTPUT
             echo "status=$STATUS" >> $GITHUB_OUTPUT
             no_fail_check
         else
@@ -129,5 +146,7 @@ elif [[ "$WAIT" == "true" ]]; then
         count=$(( $count + 30 ))
     done
     echo "Build Succeeded!"
+    env_name=$(get_backend_env_name)
+    echo "environment_name=$env_name" >> $GITHUB_OUTPUT
     echo "status=$STATUS" >> $GITHUB_OUTPUT
 fi
