@@ -147,6 +147,7 @@ elif [[ "$WAIT" == "true" ]]; then
     done
     echo "Build Succeeded!"
     env_name=$(get_backend_env_name)
+    echo "Found environment name: $env_name"
     echo "environment_name=$env_name" >> $GITHUB_OUTPUT
     echo "status=$STATUS" >> $GITHUB_OUTPUT
 fi
