@@ -71,11 +71,11 @@ fi
 
 if [[ $STATUS == "SUCCEED" ]]; then
     echo "Build Succeeded!"
-    echo "status=$STATUS" >> $GITHUB_OUTPUT
+    echo $(write_output)
     exit 0
 elif [[ $STATUS == "FAILED" ]]; then
     echo "Build Failed!"
-    echo "status=$STATUS" >> $GITHUB_OUTPUT
+    echo $(write_output)
     no_fail_check
 fi
 
@@ -117,10 +117,15 @@ get_backend_env_name () {
     return $exit_status
 }
 
-if [[ "$WAIT" == "false" ]]; then
-    env_name=$(get_backend_env_name)
+write_output () {
     echo "status=$STATUS" >> $GITHUB_OUTPUT
+    env_name=$(get_backend_env_name)
+    echo "Found environment name: $env_name"
     echo "environment_name=$env_name" >> $GITHUB_OUTPUT
+}
+
+if [[ "$WAIT" == "false" ]]; then
+    echo $(write_output)
     exit 0
 elif [[ "$WAIT" == "true" ]]; then
     while [[ $STATUS != "SUCCEED" ]]; do
@@ -136,9 +141,7 @@ elif [[ "$WAIT" == "true" ]]; then
         fi
         if [[ $STATUS == "FAILED" ]]; then
             echo "Build Failed!"
-            env_name=$(get_backend_env_name)
-            echo "environment_name=$env_name" >> $GITHUB_OUTPUT
-            echo "status=$STATUS" >> $GITHUB_OUTPUT
+            echo $(write_output)
             no_fail_check
         else
             echo "Build in progress... Status: $STATUS"
@@ -146,8 +149,5 @@ elif [[ "$WAIT" == "true" ]]; then
         count=$(( $count + 30 ))
     done
     echo "Build Succeeded!"
-    env_name=$(get_backend_env_name)
-    echo "Found environment name: $env_name"
-    echo "environment_name=$env_name" >> $GITHUB_OUTPUT
-    echo "status=$STATUS" >> $GITHUB_OUTPUT
+    echo $(write_output)
 fi
