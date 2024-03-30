@@ -55,9 +55,9 @@ get_backend_env_name () {
         list_result=$(aws amplify list-backend-environments --app-id "$APP_ID" --next-token "$next_token")
         env_name=$(echo $list_result | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
         if [[ -n $env_name ]]; then
+            env_name=$(echo $env_name | tr '\n' ' ')
             break
         fi
-        env_name=$(echo $env_name | tr '\n' ' ')
         next_token=$(echo $list_result | jq -r ".nextToken")
         next_token=$(echo $next_token | tr '\n' ' ')
         if [[ -z $next_token ]] || [[ $next_token == "null" ]]; then
