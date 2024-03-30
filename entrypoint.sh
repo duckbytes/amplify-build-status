@@ -46,7 +46,7 @@ fi
 get_backend_env_name () {
     local env_name;
     local env_arn;
-    local next_token = "";
+    local next_token="";
     local list_result;
     # get backendEnvironmentArn from get branch first
     env_arn=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
