@@ -1,5 +1,7 @@
 #!/bin/sh -l
 
+set -e
+
 APP_ID=$1
 BRANCH_NAME=$2
 COMMIT_ID=$3
@@ -75,6 +77,7 @@ get_backend_graphql_endpoint () {
     local test;
     env_name=$(get_backend_env_name)
     echo "Found env name getting graphql endpoint: $env_name" >&2
+    echo $(aws --version) >&2
     test=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name")
     echo "Test: $test" >&2
 
