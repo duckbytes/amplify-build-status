@@ -1,5 +1,5 @@
 # Container image that runs your code
-FROM alpine:3.16
+FROM alpine:latest
 
 RUN apk add aws-cli jq
 
