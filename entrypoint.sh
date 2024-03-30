@@ -46,12 +46,25 @@ fi
 get_backend_env_name () {
     local env_name;
     local env_arn;
+    local next_token = "";
+    local list_result;
     # get backendEnvironmentArn from get branch first
     env_arn=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
     # search the list of backend environments for the environment name
-    env_name=$(aws amplify list-backend-environments --app-id "$APP_ID" | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
+    while : ; do
+        list_result=$(aws amplify list-backend-environments --app-id "$APP_ID" --next-token "$next_token")
+        env_name=$(echo $list_result | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
+        if [[ -n $env_name ]]; then
+            break
+        fi
+        env_name=$(echo $env_name | tr '\n' ' ')
+        next_token=$(echo $list_result | jq -r ".nextToken")
+        next_token=$(echo $next_token | tr '\n' ' ')
+        if [[ -z $next_token ]] || [[ $next_token == "null" ]]; then
+            break
+        fi
+    done
     exit_status=$?
-    env_name=$(echo $env_name | tr '\n' ' ')
     echo "$env_name"
     return $exit_status
 }
