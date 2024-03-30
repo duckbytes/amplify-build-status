@@ -61,7 +61,7 @@ get_backend_env_name () {
             break
         fi
         next_token=$(echo $list_result | jq -r ".nextToken")
-        next_token=$(echo $next_token | tr '\n' ' ')
+        next_token=$(echo $next_token | tr -d " \t\n\r")
         if [[ -z $next_token ]] || [[ $next_token == "null" ]]; then
             break
         fi
@@ -77,15 +77,9 @@ get_backend_graphql_endpoint () {
     local test;
     env_name=$(get_backend_env_name)
     echo "Found env name getting graphql endpoint: $env_name" >&2
-    echo $(aws --version) >&2
-    test=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name")
-    echo "Test: $test" >&2
-
     endpoint=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
     exit_status=$?
-    echo "Exit status: $exit_status" >&2
-    echo "Endpoint: $endpoint" >&2
-    endpoint=$(echo $endpoint | tr '\n' ' ')
+    endpoint=$(echo $endpoint | tr -d " \t\n\r")
     echo "$endpoint"
     return $exit_status
 }
@@ -109,7 +103,7 @@ get_status () {
     exit_status=$?
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
-    status=$(echo $status | tr '\n' ' ')
+    status=$(echo $status | tr -d " \t\n\r")
     echo "$status"
     return $exit_status
 }
