@@ -73,8 +73,11 @@ get_backend_graphql_endpoint () {
     local endpoint;
     local env_name;
     env_name=$(get_backend_env_name)
+    echo "Found env name getting graphql endpoint: $env_name" >&2
     endpoint=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
     exit_status=$?
+    echo "Exit status: $exit_status" >&2
+    echo "Endpoint: $endpoint" >&2
     endpoint=$(echo $endpoint | tr '\n' ' ')
     echo "$endpoint"
     return $exit_status
@@ -82,6 +85,8 @@ get_backend_graphql_endpoint () {
 
 
 write_output () {
+    local env_name;
+    local graphql_endpoint;
     echo "status=$STATUS" >> $GITHUB_OUTPUT
     env_name=$(get_backend_env_name)
     graphql_endpoint=$(get_backend_graphql_endpoint)
