@@ -51,10 +51,10 @@ get_backend_env_name () {
     local next_token="";
     local list_result;
     # get backendEnvironmentArn from get branch first
-    env_arn=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
+    env_arn=$(/usr/local/bin/aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
     # search the list of backend environments for the environment name
     while : ; do
-        list_result=$(aws amplify list-backend-environments --app-id "$APP_ID" --next-token "$next_token")
+        list_result=$(/usr/local/bin/aws amplify list-backend-environments --app-id "$APP_ID" --next-token "$next_token")
         env_name=$(echo $list_result | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
         if [[ -n $env_name ]]; then
             env_name=$(echo $env_name | tr '\n' ' ')
@@ -77,11 +77,11 @@ get_backend_graphql_endpoint () {
     local test;
     env_name=$(get_backend_env_name)
     echo "Found env name getting graphql endpoint: $env_name" >&2
-    echo $(aws --version) >&2
-    test=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name")
+    echo $(/usr/local/bin/aws --version) >&2
+    test=$(/usr/local/bin/aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name")
     echo "Test: $test" >&2
 
-    endpoint=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
+    endpoint=$(/usr/local/bin/aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
     exit_status=$?
     echo "Exit status: $exit_status" >&2
     echo "Endpoint: $endpoint" >&2
@@ -105,7 +105,7 @@ write_output () {
 
 get_status () {
     local status;
-    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status")
+    status=$(/usr/local/bin/aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status")
     exit_status=$?
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
