@@ -9,7 +9,7 @@ Example:
 
 ```
 - name: Wait for Amplify to finish remote build
-  uses: duckbytes/amplify-build-status@v1.1
+  uses: duckbytes/amplify-build-status@v2
   with:
     app-id: ${{ secrets.AMPLIFY_APP_ID }}
     branch-name: ${{ github.ref_name }}
@@ -31,7 +31,7 @@ Click on *Edit backend* and copy the appId value.
 
 ### Inputs
 
-`app-id`, `branch-name` and `commit-id` are all required input. You also must set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION` in your environnment variables.
+`app-id`, `branch-name` and `commit-id` are all required input. You also must set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION` in your environment variables.
 
 Other inputs are:
 
@@ -41,8 +41,20 @@ Other inputs are:
 
 ### Outputs
 - `status` # The build status output according to the AWS CLI.
+- `backend_environment` # The environment name.
+- `graphql_endpoint` # The GraphQL endpoint.
+
+You can access these values later in your workflow like this:
+
+`${{ steps.amplify_status.outputs.environment_name }}`
 
 ## Known issues
 
+Sometimes the Amplify console doesn't automatically associate a backend with a new deployment.
+
+Amplify will successfully complete the new build, but it is necessary click `(Edit)` next to "Continuous deploys set up" and set it to the correct backend before the action can return the environment name and GraphQL endpoint.
+
+**only on V1**
+
 If you are connecting a branch to Amplify for the first time, the commit-id may be `HEAD` instead of the commit sha.
-Any subsequent bulds triggered by commits will use the actual commit sha.
+Any subsequent builds triggered by commits will use the actual commit sha.

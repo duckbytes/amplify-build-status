@@ -30,9 +30,9 @@ outputs:
   status:
     description: 'The result of the build.'
   backend_environment:
-    description: 'The name of the backend environment'
+    description: 'The environment name'
   graphql_endpoint:
-    description: 'The graphql endpoint for the backend'
+    description: 'The GraphQL endpoint.'
 runs:
   using: 'docker'
   image: 'Dockerfile'
