@@ -101,6 +101,8 @@ get_status () {
     local status;
     status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status")
     exit_status=$?
+    # get only the first line in case there are multiple runs
+    status=$(echo $status | head -n 1)
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
     status=$(echo $status | tr -d " \t\n\r")
