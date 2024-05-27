@@ -123,16 +123,6 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-if [[ $STATUS == "SUCCEED" ]]; then
-    echo "Build Succeeded!"
-    echo $(write_output)
-    exit 0
-elif [[ $STATUS == "FAILED" ]]; then
-    echo "Build Failed!"
-    echo $(write_output)
-    no_fail_check
-fi
-
 count=0
 
 if [[ -z $STATUS ]]; then
