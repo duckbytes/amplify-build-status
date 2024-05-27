@@ -175,11 +175,11 @@ elif [[ "$WAIT" == "true" ]]; then
             echo "Failed to get status of the job."
             exit 1
         fi
-        elif [[ $STATUS == "CANCELLED" ]]; then
+        if [[ $STATUS == "CANCELLED" ]]; then
             echo "Build cancelled!"
             echo $(write_output)
             no_fail_check
-        if [[ $STATUS == "FAILED" ]]; then
+        elif [[ $STATUS == "FAILED" ]]; then
             echo "Build failed!"
             echo $(write_output)
             no_fail_check
