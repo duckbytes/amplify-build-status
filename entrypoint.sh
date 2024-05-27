@@ -99,10 +99,8 @@ write_output () {
 
 get_status () {
     local status;
-    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status")
+    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status") | head -n 1
     exit_status=$?
-    # get only the first line in case there are multiple runs
-    status=$(echo $status | head -n 1)
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
     status=$(echo $status | tr -d " \t\n\r")
@@ -153,9 +151,7 @@ if [[ -z $STATUS ]]; then
         count=$((count+30))
         echo "Waiting for job to start..."
     done
-    elif [[ $STATUS ]]; then
-        echo "Build in progress... Status: $STATUS"
-    fi
+fi
 
 seconds=$(( $TIMEOUT * 60 ))
 count=0
@@ -169,7 +165,6 @@ elif [[ "$WAIT" == "true" ]]; then
             echo "Timed out."
             exit 1
         fi
-        sleep 30
         STATUS=$(get_status "$APP_ID" "$BRANCH_NAME" "$COMMIT_ID")
         if [[ $? -ne 0 ]]; then
             echo "Failed to get status of the job."
@@ -190,6 +185,7 @@ elif [[ "$WAIT" == "true" ]]; then
             exit 1
         fi
         count=$(( $count + 30 ))
+        sleep 30
     done
     echo "Build Succeeded!"
     echo $(write_output)
