@@ -99,7 +99,7 @@ write_output () {
 
 get_status () {
     local status;
-    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status") | head -n 1
+    status=$(aws amplify list-jobs --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".jobSummaries[] | select(.commitId == \"$COMMIT_ID\") | .status" | head -n 1)
     exit_status=$?
     # it seems like sometimes status ends up with a new line in it?
     # strip it out
