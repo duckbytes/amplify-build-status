@@ -175,12 +175,19 @@ elif [[ "$WAIT" == "true" ]]; then
             echo "Failed to get status of the job."
             exit 1
         fi
-        if [[ $STATUS == "FAILED" ]]; then
-            echo "Build Failed!"
+        elif [[ $STATUS == "CANCELLED" ]]; then
+            echo "Build cancelled!"
             echo $(write_output)
             no_fail_check
-        else
+        if [[ $STATUS == "FAILED" ]]; then
+            echo "Build failed!"
+            echo $(write_output)
+            no_fail_check
+        elif [[ $STATUS == "RUNNING" ]] || [[ $STATUS == "PENDING" ]]; then
             echo "Build in progress... Status: $STATUS"
+        else
+            echo "Unknown status: $STATUS"
+            exit 1
         fi
         count=$(( $count + 30 ))
     done
