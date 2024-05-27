@@ -9,7 +9,7 @@ Example:
 
 ```
 - name: Wait for Amplify to finish remote build
-  uses: duckbytes/amplify-build-status@v2
+  uses: duckbytes/amplify-build-status@v2.1
   with:
     app-id: ${{ secrets.AMPLIFY_APP_ID }}
     branch-name: ${{ github.ref_name }}
