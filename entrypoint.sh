@@ -170,6 +170,8 @@ elif [[ "$WAIT" == "true" ]]; then
             no_fail_check
         elif [[ $STATUS == "RUNNING" ]] || [[ $STATUS == "PENDING" ]]; then
             echo "Build in progress... Status: $STATUS"
+        elif [[ $STATUS == "SUCCEED" ]]; then
+            break
         else
             echo "Unknown status: $STATUS"
             exit 1
