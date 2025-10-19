@@ -10,6 +10,8 @@ TIMEOUT=$5
 NO_FAIL=$6
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
+declare ENV_NAME
+
 if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
   echo "You must provide the AWS_ACCESS_KEY_ID environment variable."
   exit 1
@@ -46,28 +48,12 @@ if [[ $TIMEOUT -lt 0 ]]; then
 fi
 
 get_backend_env_name () {
-    local env_name;
-    local env_arn;
-    local next_token="";
-    local list_result;
-    # get backendEnvironmentArn from get branch first
-    env_arn=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn")
-    # search the list of backend environments for the environment name
-    while : ; do
-        list_result=$(aws amplify list-backend-environments --app-id "$APP_ID" --next-token "$next_token")
-        env_name=$(echo $list_result | jq -r ".backendEnvironments[] | select(.backendEnvironmentArn == \"$env_arn\") | .environmentName")
-        if [[ -n $env_name ]]; then
-            env_name=$(echo $env_name | tr -d " \t\n\r")
-            break
-        fi
-        next_token=$(echo $list_result | jq -r ".nextToken")
-        next_token=$(echo $next_token | tr -d " \t\n\r")
-        if [[ -z $next_token ]] || [[ $next_token == "null" ]]; then
-            break
-        fi
-    done
+    local name;
+    echo "Getting env name"
+    name=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH" | jq -r ".branch.backendEnvironmentArn" | awk -F"/" '{print (NF>1)? $NF : ""}')
     exit_status=$?
-    echo "$env_name"
+    echo "$name"
+    ENV_NAME="$name"
     return $exit_status
 }
 
