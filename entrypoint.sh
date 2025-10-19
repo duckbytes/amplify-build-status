@@ -59,11 +59,8 @@ get_backend_env_name () {
 
 get_backend_graphql_endpoint () {
     local endpoint;
-    local env_name;
-    local test;
-    env_name=$(get_backend_env_name)
-    echo "Found env name getting graphql endpoint: $env_name" >&2
-    endpoint=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$env_name" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
+    echo "Getting graphql endpoint" >&2
+    endpoint=$(aws amplifybackend get-backend --app-id "$APP_ID" --backend-environment-name "$ENV_NAME" | jq -r ".AmplifyMetaConfig" | jq -r ".api.platelet.output.GraphQLAPIEndpointOutput")
     exit_status=$?
     endpoint=$(echo $endpoint | tr -d " \t\n\r")
     echo "$endpoint"
@@ -72,14 +69,12 @@ get_backend_graphql_endpoint () {
 
 
 write_output () {
-    local env_name;
     local graphql_endpoint;
     echo "status=$STATUS" >> $GITHUB_OUTPUT
-    env_name=$(get_backend_env_name)
     graphql_endpoint=$(get_backend_graphql_endpoint)
-    echo "Found environment name: $env_name"
+    echo "Found environment name: $ENV_NAME"
     echo "Found graphql endpoint: $graphql_endpoint"
-    echo "environment_name=$env_name" >> $GITHUB_OUTPUT
+    echo "environment_name=$ENV_NAME" >> $GITHUB_OUTPUT
     echo "graphql_endpoint=$graphql_endpoint" >> $GITHUB_OUTPUT
 }
 
@@ -166,5 +161,6 @@ elif [[ "$WAIT" == "true" ]]; then
         sleep 30
     done
     echo "Build Succeeded!"
+    get_backend_env_name
     echo $(write_output)
 fi
