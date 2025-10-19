@@ -10,7 +10,7 @@ TIMEOUT=$5
 NO_FAIL=$6
 export AWS_DEFAULT_REGION="$AWS_REGION"
 
-declare ENV_NAME
+ENV_NAME=
 
 if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
   echo "You must provide the AWS_ACCESS_KEY_ID environment variable."
