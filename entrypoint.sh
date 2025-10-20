@@ -50,7 +50,7 @@ fi
 get_backend_env_name () {
     local name;
     echo "Getting env name"
-    name=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH" | jq -r ".branch.backendEnvironmentArn" | awk -F"/" '{print (NF>1)? $NF : ""}')
+    name=$(aws amplify get-branch --app-id "$APP_ID" --branch-name "$BRANCH_NAME" | jq -r ".branch.backendEnvironmentArn" | awk -F"/" '{print (NF>1)? $NF : ""}')
     exit_status=$?
     echo "$name"
     ENV_NAME="$name"
