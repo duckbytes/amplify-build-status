@@ -9,7 +9,7 @@ Example:
 
 ```
 - name: Wait for Amplify to finish remote build
-  uses: duckbytes/amplify-build-status@v2.1
+  uses: duckbytes/amplify-build-status@v2.2
   with:
     app-id: ${{ secrets.AMPLIFY_APP_ID }}
     branch-name: ${{ github.ref_name }}
@@ -53,6 +53,10 @@ You can access these values later in your workflow like this:
 Sometimes the Amplify console doesn't automatically associate a backend with a new deployment.
 
 Amplify will successfully complete the new build, but it is necessary click `(Edit)` next to "Continuous deploys set up" and set it to the correct backend before the action can return the environment name and GraphQL endpoint.
+
+**only on V2.1**
+
+Sometimes the env name couldn't be retrieved when there were several environments. Fixed in 2.2.
 
 **only on V1**
 
